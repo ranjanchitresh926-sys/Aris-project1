@@ -1,0 +1,94 @@
+{
+ "tfidf": {
+  "pairs_cos_ge_090_amt_within_5pct": 499259,
+  "identical_pairs": 417524,
+  "non_identical_pairs": 81735,
+  "non_identical_differ_in_a_word": 74504,
+  "non_identical_differ_in_numbers_only": 7231,
+  "share_pairs_that_are_not_identical": 0.164,
+  "share_pairs_differing_in_a_word": 0.149,
+  "works_touched": 28163
+ },
+ "unit_price": [
+  {
+   "activity": "Street lights",
+   "works": 21033,
+   "coverage": 0.105,
+   "log10_iqr_total": 0.924,
+   "log10_iqr_unit": 0.696,
+   "improved": true
+  },
+  {
+   "activity": "Lighting of public spaces",
+   "works": 29576,
+   "coverage": 0.097,
+   "log10_iqr_total": 0.37,
+   "log10_iqr_unit": 0.318,
+   "improved": true
+  },
+  {
+   "activity": "Installing hand pumps",
+   "works": 3798,
+   "coverage": 0.029,
+   "log10_iqr_total": 0.173,
+   "log10_iqr_unit": 0.202,
+   "improved": false
+  },
+  {
+   "activity": "Installing tube-wells and borewells",
+   "works": 7184,
+   "coverage": 0.013,
+   "log10_iqr_total": 0.279,
+   "log10_iqr_unit": 0.715,
+   "improved": false
+  },
+  {
+   "activity": "Purchase of mobile water tankers",
+   "works": 5122,
+   "coverage": 0.018,
+   "log10_iqr_total": 0.11,
+   "log10_iqr_unit": 1.215,
+   "improved": false
+  }
+ ],
+ "benford": {
+  "n": 279619,
+  "mad": 0.0137,
+  "observed": {
+   "1": 0.29,
+   "2": 0.189,
+   "3": 0.131,
+   "4": 0.125,
+   "5": 0.069,
+   "6": 0.05,
+   "7": 0.053,
+   "8": 0.034,
+   "9": 0.06
+  },
+  "benford": {
+   "1": 0.301,
+   "2": 0.176,
+   "3": 0.125,
+   "4": 0.097,
+   "5": 0.079,
+   "6": 0.067,
+   "7": 0.058,
+   "8": 0.051,
+   "9": 0.046
+  },
+  "share_amounts_multiple_of_10000": 0.189,
+  "digit_5_observed_vs_benford": [
+   0.069,
+   0.079
+  ]
+ },
+ "concentration": {
+  "districts_tested": 1880,
+  "corr_top_share_vs_inverse_n_vendors": 0.571,
+  "top10_share_range": [
+   0.885,
+   0.976
+  ],
+  "top10_that_look_like_govt_agencies": 4
+ }
+}

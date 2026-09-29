@@ -1,0 +1,23 @@
+{
+ "scope": [
+  "17th",
+  "18th",
+  "retired",
+  "sitting"
+ ],
+ "vendors": 69830,
+ "payment_rows": 284524,
+ "matched": 2368,
+ "matched_pct": 3.39,
+ "ambiguous": 149,
+ "unmatched": 67313,
+ "flagged_nonactive": 776,
+ "reg_after_first_pay": 140,
+ "reg_after_first_pay_n_checked": 2365,
+ "reg_after_first_pay_pct": 5.9,
+ "names_checked": 1311,
+ "names_multi_id": 147,
+ "strike_matched_pct": 30.5,
+ "strike_registry_pct": 25.2,
+ "note": "Measured against the CURRENT flagged_mplads_vendors.csv-generating script (build_vendor_registry_match.py) and this session's e-SAKSHI snapshot; run.py is fully reproducible."
+}

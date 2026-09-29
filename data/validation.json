@@ -1,0 +1,253 @@
+{
+ "snapshot": "2026-09-27",
+ "thresholds": {
+  "norm_days": 365,
+  "sanction_days": 45,
+  "paid_ratio": 0.95,
+  "idle_days_paid": 90,
+  "stuck_days": 90,
+  "cost_min_group": 25,
+  "cost_fence_k": 3.0,
+  "cost_min_ratio": 3.0,
+  "cost_min_iqr_log10": 0.1,
+  "dup_amt_rel": 0.05,
+  "dup_max_group": 4,
+  "dup_generic_global": 20,
+  "dup_min_tokens": 6
+ },
+ "works": 219772,
+ "reconcile_max_abs_diff_rs": 0.00041961669921875,
+ "completed_share_paid_ge_threshold": 0.9801821261863723,
+ "completed_median_paid_ratio": 1.0,
+ "overpaid_works": 1,
+ "flags": {
+  "PAID_NOT_CLOSED": 18529,
+  "OVERDUE": 20981,
+  "COST_OUTLIER": 1678,
+  "POSSIBLE_DUPLICATE": 3113,
+  "STUCK_PAYMENT": 591
+ },
+ "flagged_any": 43526,
+ "flagged_2plus": 1345,
+ "dq_implausible_lt_1000": 9,
+ "desc_corrupt": 810,
+ "km_open_at_12m_pooled": 0.49956117664030364,
+ "naive_median_days_completed": 205.0,
+ "dup_groups_flagged": 1319,
+ "dup_works_flagged": 3113,
+ "dup_bulk_suppressed_works": 2767,
+ "dup_generic_suppressed_works": 7844,
+ "dup_blocks_with_2plus_similar_template_works": 13574,
+ "cost_bulk_excluded": 4214,
+ "cost_unit_price_eligible": 9921,
+ "cost_unit_price_flagged": 118,
+ "cost_total_flagged": 1561,
+ "backtest_meta": {
+  "t0": "2025-09-27",
+  "snapshot": "2026-09-27",
+  "open_at_t0": 77148,
+  "sanctioned_by_t0": 158808
+ },
+ "paid_not_closed_by_band": {
+  "366\u2013730 d": 5368,
+  "181\u2013365 d": 5211,
+  "91\u2013180 d": 5190,
+  "> 730 d": 2760
+ },
+ "paid_not_closed_gt730": {
+  "works": 2760,
+  "cr": 140.207608471,
+  "by_cat": {
+   "17th": 2187,
+   "18th": 1,
+   "retired": 445,
+   "sitting": 127
+  }
+ },
+ "paid_not_closed_with_inprogress": {
+  "works": 290,
+  "cr": 3.9580158
+ },
+ "inprogress_rows": {
+  "total": 4785,
+  "median_age_days": 11.0,
+  "gt90": 681,
+  "gt90_cr": 13.3139755,
+  "gt365": 157
+ },
+ "date_gaps": [
+  {
+   "series": "completions",
+   "from_date": "2023-08-02",
+   "to_date": "2023-08-17",
+   "days": 15
+  },
+  {
+   "series": "completions",
+   "from_date": "2026-05-15",
+   "to_date": "2026-07-10",
+   "days": 56
+  },
+  {
+   "series": "payments",
+   "from_date": "2025-04-07",
+   "to_date": "2025-04-21",
+   "days": 14
+  },
+  {
+   "series": "payments",
+   "from_date": "2026-05-30",
+   "to_date": "2026-06-10",
+   "days": 11
+  },
+  {
+   "series": "sanctions",
+   "from_date": "2023-06-01",
+   "to_date": "2023-06-14",
+   "days": 13
+  },
+  {
+   "series": "sanctions",
+   "from_date": "2024-03-16",
+   "to_date": "2024-06-10",
+   "days": 86
+  },
+  {
+   "series": "sanctions",
+   "from_date": "2026-04-24",
+   "to_date": "2026-05-13",
+   "days": 19
+  },
+  {
+   "series": "sanctions",
+   "from_date": "2026-05-30",
+   "to_date": "2026-06-10",
+   "days": 11
+  }
+ ],
+ "rejected_methods": {
+  "tfidf": {
+   "pairs_cos_ge_090_amt_within_5pct": 499259,
+   "identical_pairs": 417524,
+   "non_identical_pairs": 81735,
+   "non_identical_differ_in_a_word": 74504,
+   "non_identical_differ_in_numbers_only": 7231,
+   "share_pairs_that_are_not_identical": 0.164,
+   "share_pairs_differing_in_a_word": 0.149,
+   "works_touched": 28163
+  },
+  "unit_price": [
+   {
+    "activity": "Street lights",
+    "works": 21033,
+    "coverage": 0.105,
+    "log10_iqr_total": 0.924,
+    "log10_iqr_unit": 0.696,
+    "improved": true
+   },
+   {
+    "activity": "Lighting of public spaces",
+    "works": 29576,
+    "coverage": 0.097,
+    "log10_iqr_total": 0.37,
+    "log10_iqr_unit": 0.318,
+    "improved": true
+   },
+   {
+    "activity": "Installing hand pumps",
+    "works": 3798,
+    "coverage": 0.029,
+    "log10_iqr_total": 0.173,
+    "log10_iqr_unit": 0.202,
+    "improved": false
+   },
+   {
+    "activity": "Installing tube-wells and borewells",
+    "works": 7184,
+    "coverage": 0.013,
+    "log10_iqr_total": 0.279,
+    "log10_iqr_unit": 0.715,
+    "improved": false
+   },
+   {
+    "activity": "Purchase of mobile water tankers",
+    "works": 5122,
+    "coverage": 0.018,
+    "log10_iqr_total": 0.11,
+    "log10_iqr_unit": 1.215,
+    "improved": false
+   }
+  ],
+  "benford": {
+   "n": 279619,
+   "mad": 0.0137,
+   "observed": {
+    "1": 0.29,
+    "2": 0.189,
+    "3": 0.131,
+    "4": 0.125,
+    "5": 0.069,
+    "6": 0.05,
+    "7": 0.053,
+    "8": 0.034,
+    "9": 0.06
+   },
+   "benford": {
+    "1": 0.301,
+    "2": 0.176,
+    "3": 0.125,
+    "4": 0.097,
+    "5": 0.079,
+    "6": 0.067,
+    "7": 0.058,
+    "8": 0.051,
+    "9": 0.046
+   },
+   "share_amounts_multiple_of_10000": 0.189,
+   "digit_5_observed_vs_benford": [
+    0.069,
+    0.079
+   ]
+  },
+  "concentration": {
+   "districts_tested": 1880,
+   "corr_top_share_vs_inverse_n_vendors": 0.571,
+   "top10_share_range": [
+    0.885,
+    0.976
+   ],
+   "top10_that_look_like_govt_agencies": 4
+  }
+ },
+ "cost_flag_by_basis": {
+  "activity\u00d7state": 1537,
+  "activity (national)": 141
+ },
+ "cost_flag_top_activities": {
+  "Construction of roads, link roads, pathways or any other road with or without drainage system": 323,
+  "Street lights": 228,
+  "Construction of community centers and community halls": 155,
+  "Installing hand pumps": 84,
+  "Lighting of public spaces": 74,
+  "Purchase of smart boards, visual display units and projectors": 65,
+  "Installing tube-wells and borewells": 53,
+  "Installing community drinking water plants": 51
+ },
+ "paid_not_closed_rs_cr_by_cat": {
+  "17th": 363.8,
+  "18th": 349.0,
+  "retired": 248.9,
+  "sitting": 196.0
+ },
+ "vendors": {
+  "rows": 776,
+  "tiers": {
+   "D \u2013 state MISMATCH (likely different entity)": 611,
+   "A \u2013 state-consistent": 93,
+   "C \u2013 name-collision evidence": 72
+  },
+  "reg_after_first_pay": 0,
+  "multi_vendor_id_names": 72,
+  "unique_cins": 653
+ }
+}
