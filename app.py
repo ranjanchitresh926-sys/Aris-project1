@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="MPLADS Intelligence Layer · SIH26102", page_icon="🔎", layout="wide")
+st.set_page_config(page_title="MPLADS Intelligence Layer · SIH26102", page_icon=":material/search:", layout="wide")
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 
@@ -25,7 +25,7 @@ def load():
 W, DET, KM, DIST, HEAD, VEND, VAL, M4, BT, BTC, MON = load()
 Wi = W.set_index("uid")
 SNAP = pd.Timestamp(VAL["snapshot"])
-BADGE = {"f_paid": "💸 Paid, not closed", "f_stall": "⏳ Overdue", "f_cost": "📈 Cost outlier", "f_dup": "♊ Possible duplicate", "f_stuck": "🔒 Stuck payment"}
+BADGE = {"f_paid": "Paid, not closed", "f_stall": "Overdue", "f_cost": "Cost outlier", "f_dup": "Possible duplicate", "f_stuck": "Stuck payment"}
 
 
 def cr(x): return f"₹{x:,.1f} Cr"
@@ -33,7 +33,7 @@ def inr(x):
     return "n/a" if pd.isna(x) else (f"₹{x/1e7:.2f} Cr" if x >= 1e7 else (f"₹{x/1e5:.1f} L" if x >= 1e5 else f"₹{x:,.0f}"))
 
 
-st.sidebar.title("🔎 MPLADS Intelligence Layer")
+st.sidebar.title(":material/search: MPLADS Intelligence Layer")
 st.sidebar.caption("SIH 2026 · PS 26102 · MoSPI / DIID")
 page = st.sidebar.radio("View", ["Overview", "Flagged works", "District peers", "Vendor registry (Module 4)", "Validation & data quality", "Evidence & scope"], label_visibility="collapsed")
 st.sidebar.info(f"**Snapshot:** e-SAKSHI public exports as of **{SNAP:%d-%b-%Y}** — a dated snapshot, not a live feed.\n\n"
@@ -103,7 +103,7 @@ elif page == "Flagged works":
         exp = F[["work_id", "cat_label", "state", "district", "activity", "sanc_amt", "paid", "status", "sanc_date", "last_pay", "n_flags", "score", "f_paid", "f_stall", "f_cost", "f_dup", "f_stuck", "mp_display"]].copy()
         rs = DET.reindex(F.uid)[["reason_paid", "reason_stall", "reason_cost", "reason_dup", "reason_stuck"]].reset_index(drop=True)
         exp = pd.concat([exp.reset_index(drop=True), rs], axis=1)
-        st.download_button("⬇ Download this filtered list as CSV (audit worksheet)", exp.to_csv(index=False).encode("utf-8"), "mplads_flagged_works.csv", "text/csv")
+        st.download_button("Download this filtered list as CSV (audit worksheet)", exp.to_csv(index=False).encode("utf-8"), "mplads_flagged_works.csv", "text/csv", icon=":material/download:")
     else:
         st.caption("Filter to under 60,000 works to enable CSV download.")
     sel = ev.selection.rows[0] if ev and ev.selection and ev.selection.rows else None
@@ -126,7 +126,7 @@ elif page == "Flagged works":
             st.success("This work carries no flags.")
         # ---- cost
         if r.f_cost:
-            st.markdown("#### 📈 Cost outlier"); st.write(d.reason_cost)
+            st.markdown("#### :material/trending_up: Cost outlier"); st.write(d.reason_cost)
             is_unit = r.cost_method.startswith("per-unit")
             same_state = r.cost_basis == "activity×state"
             if is_unit:
@@ -150,7 +150,7 @@ elif page == "Flagged works":
             st.caption(f"Comparison basis: {r.cost_basis.replace('×', ' × ')} · method: {r.cost_method}" + (f" · {int(r.bulk_qty)} units stated in description" if pd.notna(r.bulk_qty) else ""))
         # ---- duplicate
         if r.f_dup:
-            st.markdown("#### ♊ Possible duplicate"); st.write(d.reason_dup)
+            st.markdown("#### :material/content_copy: Possible duplicate"); st.write(d.reason_dup)
             ids = [uid] + [p for p in d.dup_partners.split(";") if p]
             cols = st.columns(len(ids))
             for col, u in zip(cols, ids):
@@ -160,10 +160,10 @@ elif page == "Flagged works":
                 col.caption(f"{inr(x.sanc_amt)} · sanctioned {x.sanc_date:%d-%b-%Y} · paid {inr(x.paid)} · {x.status}")
         # ---- stuck payment
         if r.f_stuck:
-            st.markdown("#### 🔒 Stuck payment"); st.write(d.reason_stuck)
+            st.markdown("#### :material/lock: Stuck payment"); st.write(d.reason_stuck)
         # ---- timeline (paid-not-closed / overdue)
         if r.f_paid or r.f_stall:
-            st.markdown("#### " + ("💸 Paid, not closed" if r.f_paid else "") + ("  ⏳ Overdue" if r.f_stall else ""))
+            st.markdown("#### " + (":material/payments: Paid, not closed" if r.f_paid else "") + ("  :material/hourglass_top: Overdue" if r.f_stall else ""))
             if r.f_paid: st.write(d.reason_paid)
             if r.f_stall: st.write(d.reason_stall)
             ev_ = [("Sanctioned", r.sanc_date), ("12-month norm", r.sanc_date + pd.Timedelta(days=365)), ("Snapshot", SNAP)]
@@ -275,7 +275,7 @@ elif page == "Validation & data quality":
     st.markdown(f"""
 - **No completions were recorded between 15-May and 10-Jul-2026 (56 days)** while payments and sanctions continued. Cause **unverified** (a completion-workflow change, freeze, or export gap are all possible) — worth a question to MoSPI/NIC. Part of the current paid-not-closed backlog may be a consequence.
 - **No sanctions between 16-Mar and 10-Jun-2024 (86 days)** coincides with the 2024 general-election period (cause is our inference). Sanction-lag statistics are in calendar days and include that pause.
-- **Payment status:** {VAL['inprogress_rows']['total']:,} payment rows are not ‘Payment Success’; half are under {VAL['inprogress_rows']['median_age_days']:.0f} days old, but {VAL['inprogress_rows']['gt90']:,} (₹{VAL['inprogress_rows']['gt90_cr']:.1f} Cr) are older than 90 days and {VAL['inprogress_rows']['gt365']} older than a year — these drive the 🔒 Stuck-payment flag. Only {VAL['paid_not_closed_with_inprogress']['works']} paid-not-closed works (₹{VAL['paid_not_closed_with_inprogress']['cr']:.1f} Cr of in-progress money) depend on unsettled payments, so the headline is insensitive to that choice.
+- **Payment status:** {VAL['inprogress_rows']['total']:,} payment rows are not ‘Payment Success’; half are under {VAL['inprogress_rows']['median_age_days']:.0f} days old, but {VAL['inprogress_rows']['gt90']:,} (₹{VAL['inprogress_rows']['gt90_cr']:.1f} Cr) are older than 90 days and {VAL['inprogress_rows']['gt365']} older than a year — these drive the :material/lock: Stuck-payment flag. Only {VAL['paid_not_closed_with_inprogress']['works']} paid-not-closed works (₹{VAL['paid_not_closed_with_inprogress']['cr']:.1f} Cr of in-progress money) depend on unsettled payments, so the headline is insensitive to that choice.
 - {VAL['desc_corrupt']:,} work descriptions have Hindi text destroyed to ‘?’ in the source export; {VAL['dq_implausible_lt_1000']} sanctions are under ₹1,000 (likely entry errors, e.g. ₹1.81).
 """)
     st.divider()
@@ -309,11 +309,11 @@ else:
     st.subheader("Detectors and thresholds")
     T = VAL["thresholds"]; F = VAL["flags"]; RM = VAL.get("rejected_methods", {})
     st.markdown(f"""
-- **💸 Paid, not closed** — not in Completed table, paid ≥ {T['paid_ratio']*100:.0f}% of sanction, last payment > {T['idle_days_paid']} days ago. **{F['PAID_NOT_CLOSED']:,}** works. *Calibration:* {VAL['completed_share_paid_ge_threshold']*100:.1f}% of completed works are ≥95% paid; the median completed work is paid exactly 100% of sanction; e-SAKSHI enforces payment ≤ sanction ({VAL['overpaid_works']} exception in {VAL['works']:,}), so there is no overpayment or cost-overrun signal to detect. Backtested (see Validation).
-- **⏳ Overdue** — not in Completed table, < 95% paid, older than the 12-month norm. **{F['OVERDUE']:,}** works. Context from a **Kaplan–Meier** completion curve per activity (incomplete works are right-censored; the naïve median of finished works, {VAL['naive_median_days_completed']:.0f} days, is biased low — {VAL['km_open_at_12m_pooled']*100:.0f}% of works are still open at 12 months, itself a systemic finding). Backtested; payment-idleness was tested and removed.
-- **📈 Cost outlier** — Tukey far-out fence ({T['cost_fence_k']:.0f}×IQR on log cost) within *activity × state* (activity-national fallback; min group {T['cost_min_group']}), and ≥ {T['cost_min_ratio']:.0f}× the peer median. **{F['COST_OUTLIER']:,}** works ({VAL['cost_unit_price_flagged']} by per-unit cost, {VAL['cost_total_flagged']} by total cost). *Corrected during validation:* bulk multi-site sanctions ("810 locations", "165 LED Highmast Lights") were dominating the raw total-cost ranking purely because a multi-site total was compared to single-site peers. Fix: for Street lights / Lighting of public spaces — the 2 of 121 activities where a per-unit probe measurably reduced dispersion — a stated quantity triggers a **per-unit** comparison instead ({VAL['cost_unit_price_eligible']:,} works quantity-parseable); {VAL['cost_bulk_excluded']:,} other bulk/multi-site works with no reliable quantity are **excluded** from this flag rather than mis-compared. *Remaining limits:* no quantity field for other activities, and `Work category` is administrative (98.9% 'Normal/Others'), so the asset key is the guideline *activity* (121 types); the full description is shown on every flagged card so a reviewer can judge scale mismatches (e.g. a ₹15 Cr 'Planetarium and Hill Museum' sanctioned under the 'community hall' head). Not backtestable — no outcome variable exists for cost.
-- **♊ Possible duplicate** — identical, specific description (≥ {T['dup_min_tokens']} words), same MP + district + activity, amounts within {T['dup_amt_rel']*100:.0f}%, group of 2–{T['dup_max_group']}. **{F['POSSIBLE_DUPLICATE']:,}** works; bulk templates suppressed ({VAL['dup_bulk_suppressed_works']:,} works in larger groups; {VAL['dup_generic_suppressed_works']:,} with nationally common wording). Phased funding is a legitimate explanation. Not backtestable.
-- **🔒 Stuck payment** — a payment row still ‘Payment In-Progress’ after > {T['stuck_days']} days. **{F['STUCK_PAYMENT']:,}** works. Meaning of the status is unverified.
+- **:material/payments: Paid, not closed** — not in Completed table, paid ≥ {T['paid_ratio']*100:.0f}% of sanction, last payment > {T['idle_days_paid']} days ago. **{F['PAID_NOT_CLOSED']:,}** works. *Calibration:* {VAL['completed_share_paid_ge_threshold']*100:.1f}% of completed works are ≥95% paid; the median completed work is paid exactly 100% of sanction; e-SAKSHI enforces payment ≤ sanction ({VAL['overpaid_works']} exception in {VAL['works']:,}), so there is no overpayment or cost-overrun signal to detect. Backtested (see Validation).
+- **:material/hourglass_top: Overdue** — not in Completed table, < 95% paid, older than the 12-month norm. **{F['OVERDUE']:,}** works. Context from a **Kaplan–Meier** completion curve per activity (incomplete works are right-censored; the naïve median of finished works, {VAL['naive_median_days_completed']:.0f} days, is biased low — {VAL['km_open_at_12m_pooled']*100:.0f}% of works are still open at 12 months, itself a systemic finding). Backtested; payment-idleness was tested and removed.
+- **:material/trending_up: Cost outlier** — Tukey far-out fence ({T['cost_fence_k']:.0f}×IQR on log cost) within *activity × state* (activity-national fallback; min group {T['cost_min_group']}), and ≥ {T['cost_min_ratio']:.0f}× the peer median. **{F['COST_OUTLIER']:,}** works ({VAL['cost_unit_price_flagged']} by per-unit cost, {VAL['cost_total_flagged']} by total cost). *Corrected during validation:* bulk multi-site sanctions ("810 locations", "165 LED Highmast Lights") were dominating the raw total-cost ranking purely because a multi-site total was compared to single-site peers. Fix: for Street lights / Lighting of public spaces — the 2 of 121 activities where a per-unit probe measurably reduced dispersion — a stated quantity triggers a **per-unit** comparison instead ({VAL['cost_unit_price_eligible']:,} works quantity-parseable); {VAL['cost_bulk_excluded']:,} other bulk/multi-site works with no reliable quantity are **excluded** from this flag rather than mis-compared. *Remaining limits:* no quantity field for other activities, and `Work category` is administrative (98.9% 'Normal/Others'), so the asset key is the guideline *activity* (121 types); the full description is shown on every flagged card so a reviewer can judge scale mismatches (e.g. a ₹15 Cr 'Planetarium and Hill Museum' sanctioned under the 'community hall' head). Not backtestable — no outcome variable exists for cost.
+- **:material/content_copy: Possible duplicate** — identical, specific description (≥ {T['dup_min_tokens']} words), same MP + district + activity, amounts within {T['dup_amt_rel']*100:.0f}%, group of 2–{T['dup_max_group']}. **{F['POSSIBLE_DUPLICATE']:,}** works; bulk templates suppressed ({VAL['dup_bulk_suppressed_works']:,} works in larger groups; {VAL['dup_generic_suppressed_works']:,} with nationally common wording). Phased funding is a legitimate explanation. Not backtestable.
+- **:material/lock: Stuck payment** — a payment row still ‘Payment In-Progress’ after > {T['stuck_days']} days. **{F['STUCK_PAYMENT']:,}** works. Meaning of the status is unverified.
 """)
     st.subheader("Known limits (stated up front)")
     st.markdown(f"""
