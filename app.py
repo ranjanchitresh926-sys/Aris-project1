@@ -339,27 +339,30 @@ div[data-testid="stMarkdown"] tr:hover td {
 }
 
 /* ── Radio button (TOOFAN style) ── */
-/* Hide Native Radio Circles */
+/* Aggressively Hide Native Radio Circles across all Streamlit versions */
 div[data-testid="stRadio"] input[type="radio"],
-div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {
+div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child,
+div[data-testid="stRadio"] div[role="radio"],
+div[data-testid="stRadio"] svg {
     display: none !important;
 }
 
-/* Radio Group Container */
-div[data-testid="stRadio"] > div[role="radiogroup"] {
+/* Radio Group Container (Matches multiple Streamlit version DOMs) */
+div[data-testid="stRadio"] > div[role="radiogroup"],
+div[data-testid="stRadio"] > div:last-child {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
-    justify-content: center;
+    justify-content: center !important;
     gap: 2rem !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    align-items: center;
+    align-items: center !important;
 }
 
 /* Tab Items (Inactive) */
-div[data-testid="stRadio"] > div[role="radiogroup"] > label {
+div[data-testid="stRadio"] label {
     background: transparent !important;
     padding: 4px 0px !important;
     margin: 0 !important;
@@ -376,22 +379,22 @@ div[data-testid="stRadio"] > div[role="radiogroup"] > label {
     transition: color 0.2s ease, border-bottom 0.2s ease;
 }
 
-div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
+div[data-testid="stRadio"] label:hover {
     color: #000000 !important;
 }
 
-/* Active/Selected state */
-div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"],
-div[data-testid="stRadio"] > div[role="radiogroup"] > label[aria-checked="true"],
-div[data-testid="stRadio"] > div[role="radiogroup"] > label:has(input[type="radio"]:checked) {
+/* Active/Selected state (Works on all browsers and older Streamlit) */
+div[data-testid="stRadio"] label[data-checked="true"],
+div[data-testid="stRadio"] label[aria-checked="true"],
+div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {
     color: #000000 !important;
     border-bottom: 2px solid #000000 !important;
 }
 
-/* Inherit text color inside label */
-div[data-testid="stRadio"] > div[role="radiogroup"] > label p,
-div[data-testid="stRadio"] > div[role="radiogroup"] > label span,
-div[data-testid="stRadio"] > div[role="radiogroup"] > label div {
+/* Inherit text color inside label wrappers */
+div[data-testid="stRadio"] label p,
+div[data-testid="stRadio"] label span,
+div[data-testid="stRadio"] label div {
     color: inherit !important;
     font-weight: inherit !important;
     font-size: inherit !important;
