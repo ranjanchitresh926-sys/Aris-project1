@@ -7,8 +7,276 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="MPLADS Intelligence Layer · SIH26102", page_icon=":material/search:", layout="wide")
+st.set_page_config(page_title="MPLADS Intelligence Layer · SIH26102", page_icon=":material/search:", layout="wide", initial_sidebar_state="collapsed")
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+
+# ── Global CSS: hide sidebar, top navbar, color system, typography ──────────
+st.markdown("""
+<style>
+/* ── Hide the default Streamlit sidebar completely ── */
+section[data-testid="stSidebar"] { display: none !important; }
+button[data-testid="stSidebarCollapsedControl"],
+button[data-testid="baseButton-headerNoPadding"] { display: none !important; }
+
+/* ── Top Navbar ── */
+div.navbar-container {
+    position: sticky; top: 0; z-index: 9999;
+    background: linear-gradient(135deg, #0d253f 0%, #1f4e79 100%);
+    padding: 0.6rem 2rem; margin: -1rem -1rem 1.5rem -1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-bottom: 3px solid #2e7d32;
+}
+div.navbar-brand {
+    display: flex; align-items: center; gap: 0.6rem;
+    color: #ffffff; font-size: 1.15rem; font-weight: 700;
+    letter-spacing: 0.02em; white-space: nowrap;
+}
+div.navbar-brand .brand-icon { font-size: 1.4rem; }
+div.navbar-brand .brand-sub {
+    font-size: 0.72rem; font-weight: 400; color: rgba(255,255,255,0.7);
+    margin-left: 0.3rem;
+}
+div.navbar-right {
+    display: flex; align-items: center; gap: 1rem;
+    color: rgba(255,255,255,0.85); font-size: 0.82rem;
+}
+div.navbar-right span { cursor: default; }
+
+/* ── Color System ── */
+/* Primary buttons → Blue */
+button[kind="primary"], .stButton > button,
+button[data-testid="stBaseButton-primary"] {
+    background-color: #1f4e79 !important;
+    border-color: #1f4e79 !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    transition: background-color 0.2s ease;
+}
+button[kind="primary"]:hover, .stButton > button:hover,
+button[data-testid="stBaseButton-primary"]:hover {
+    background-color: #163a5c !important;
+    border-color: #163a5c !important;
+}
+/* Download buttons */
+button[data-testid="stBaseButton-secondary"] {
+    background-color: #ffffff !important;
+    border: 2px solid #1f4e79 !important;
+    color: #1f4e79 !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+}
+button[data-testid="stBaseButton-secondary"]:hover {
+    background-color: #e8f0fa !important;
+}
+
+/* Cards, panels, info containers → Blue accents */
+div[data-testid="stMetric"] {
+    background: #f7fafd;
+    border: 1px solid #c5d9ed;
+    border-left: 4px solid #1f4e79;
+    border-radius: 8px;
+    padding: 1rem 1.2rem !important;
+}
+div[data-testid="stMetricValue"] {
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+div[data-testid="stMetricLabel"] {
+    color: #333333 !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stMetricDelta"] {
+    color: #4A4A4A !important;
+}
+
+/* Alert boxes: info → Blue, success → Green, warning/error preserved */
+div[data-testid="stAlert"] {
+    border-radius: 8px !important;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+/* Dataframes → Blue header accents */
+div[data-testid="stDataFrame"] {
+    border: 1px solid #c5d9ed;
+    border-radius: 8px;
+}
+
+/* ── Typography Hierarchy ── */
+/* Primary headings → solid black */
+h1 {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 1.85rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.5rem !important;
+    letter-spacing: -0.01em;
+}
+h2 {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 1.4rem !important;
+    line-height: 1.35 !important;
+    margin-top: 1.8rem !important;
+    margin-bottom: 0.4rem !important;
+}
+h3 {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 1.15rem !important;
+    line-height: 1.4 !important;
+    margin-top: 1.4rem !important;
+    margin-bottom: 0.35rem !important;
+}
+h4 {
+    color: #1a1a1a !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+    line-height: 1.4 !important;
+    margin-top: 1.2rem !important;
+    margin-bottom: 0.3rem !important;
+}
+
+/* Secondary text / subtitles / meta / captions → charcoal */
+p, li, td, th, span, label {
+    color: #333333;
+    line-height: 1.65;
+}
+div[data-testid="stCaptionContainer"],
+div[data-testid="stCaptionContainer"] p {
+    color: #4A4A4A !important;
+    font-size: 0.82rem !important;
+    line-height: 1.55 !important;
+}
+
+/* Selectbox / multiselect / input labels */
+label[data-testid="stWidgetLabel"] p {
+    color: #333333 !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+}
+
+/* Markdown body text */
+div[data-testid="stMarkdown"] p {
+    color: #333333;
+    font-size: 0.94rem;
+    line-height: 1.65;
+}
+div[data-testid="stMarkdown"] strong {
+    color: #000000;
+}
+
+/* ── Spacing Standardization ── */
+div[data-testid="stVerticalBlock"] > div {
+    margin-bottom: 0.15rem;
+}
+div.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 1200px;
+}
+div[data-testid="stHorizontalBlock"] {
+    gap: 1rem;
+}
+div[data-testid="column"] {
+    padding: 0 0.5rem;
+}
+
+/* ── Expander styling ── */
+details[data-testid="stExpander"] {
+    border: 1px solid #c5d9ed !important;
+    border-radius: 8px !important;
+}
+
+/* ── Dividers ── */
+hr {
+    border-color: #c5d9ed !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ── Tables inside markdown ── */
+div[data-testid="stMarkdown"] table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.88rem;
+}
+div[data-testid="stMarkdown"] th {
+    background: #f0f5fa;
+    color: #000000;
+    font-weight: 700;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 2px solid #1f4e79;
+    text-align: left;
+}
+div[data-testid="stMarkdown"] td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #e0e6ed;
+}
+div[data-testid="stMarkdown"] tr:hover td {
+    background: #f7fafd;
+}
+
+/* ── Responsive: mobile ── */
+@media (max-width: 768px) {
+    div.navbar-container {
+        padding: 0.5rem 1rem;
+        flex-direction: column; align-items: flex-start;
+    }
+    div.navbar-right { display: none; }
+    h1 { font-size: 1.4rem !important; }
+    h2 { font-size: 1.15rem !important; }
+    div.block-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+}
+
+/* ── Radio button (top nav tabs) styling ── */
+div[data-testid="stHorizontalBlock"] div[data-testid="stRadio"] > div {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.25rem !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stRadio"] > div > label {
+    background: transparent !important;
+    border: none !important;
+    color: #333333 !important;
+    font-weight: 500 !important;
+    padding: 0.3rem 0.7rem !important;
+    border-radius: 6px !important;
+    font-size: 0.88rem !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stRadio"] > div > label:hover {
+    background: #e8f0fa !important;
+    color: #1f4e79 !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stRadio"] > div > label[data-checked="true"],
+div[data-testid="stHorizontalBlock"] div[data-testid="stRadio"] > div > label[aria-checked="true"] {
+    background: #1f4e79 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ── Top Navigation Bar (replaces sidebar) ────────────────────────────────────
+st.markdown("""
+<div class="navbar-container">
+    <div class="navbar-brand">
+        <span class="brand-icon">🔍</span>
+        MPLADS Intelligence Layer
+        <span class="brand-sub">SIH 2026 · PS 26102 · MoSPI / DIID</span>
+    </div>
+    <div class="navbar-right">
+        <span>📊 Dashboard</span>
+        <span>🔔 Alerts</span>
+        <span>👤 Admin</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 
 @st.cache_data(show_spinner=False)
@@ -33,11 +301,14 @@ def inr(x):
     return "n/a" if pd.isna(x) else (f"₹{x/1e7:.2f} Cr" if x >= 1e7 else (f"₹{x/1e5:.1f} L" if x >= 1e5 else f"₹{x:,.0f}"))
 
 
-st.sidebar.title(":material/search: MPLADS Intelligence Layer")
-st.sidebar.caption("SIH 2026 · PS 26102 · MoSPI / DIID")
-page = st.sidebar.radio("View", ["Overview", "Flagged works", "District peers", "Vendor registry (Module 4)", "Validation & data quality", "Evidence & scope"], label_visibility="collapsed")
-st.sidebar.info(f"**Snapshot:** e-SAKSHI public exports as of **{SNAP:%d-%b-%Y}** — a dated snapshot, not a live feed.\n\n"
-                "MP identities are **pseudonymised** (MP-ID) in this public build. Flags are review priorities for human auditors, never accusations.")
+# ── Horizontal page navigation (replaces sidebar radio) ─────────────────────
+_nav_cols = st.columns([6, 1])
+with _nav_cols[0]:
+    page = st.radio("View", ["Overview", "Flagged works", "District peers", "Vendor registry (Module 4)", "Validation & data quality", "Evidence & scope"], label_visibility="collapsed", horizontal=True)
+with _nav_cols[1]:
+    st.caption(f"📅 {SNAP:%d-%b-%Y}")
+st.info(f"**Note: Snapshot** — e-SAKSHI public exports as of **{SNAP:%d-%b-%Y}** — a dated snapshot, not a live feed. "
+        "MP identities are **pseudonymised** (MP-ID) in this public build. Flags are review priorities for human auditors, never accusations.")
 
 
 # =========================================================================================
@@ -53,11 +324,11 @@ if page == "Overview":
     c2.metric("Fully paid, unmarked, idle > 90 days", f"{tot_w:,} works", cr(tot_c), delta_color="off")
     c3.metric("Persistent core: idle > 2 years", f"{g730['works']:,} works", cr(g730["cr"]), delta_color="off")
     c4.metric("Works flagged (any detector)", f"{VAL['flagged_any']:,}", f"{VAL['flagged_2plus']:,} with 2+ flags", delta_color="off")
-    st.success(f"**Tested, not assumed.** We rewound to {VAL['backtest_meta']['t0']}, recomputed the flag using only what was known then, and watched the next 12 months: "
+    st.success(f"**Note: Tested, not assumed.** We rewound to {VAL['backtest_meta']['t0']}, recomputed the flag using only what was known then, and watched the next 12 months: "
                f"**{r_all*100:.0f}%** of works in the “idle > 90 days” state were marked complete within a year — so most of that flag is ordinary paperwork lag. "
                f"The **{g730['works']:,} works (₹{g730['cr']:,.1f} Cr) still open more than two years after their last payment** are the persistent core an auditor should chase first. See *Validation & data quality*.")
-    st.subheader("Why we do not headline “Expenditure − Completed”")
-    st.info("MoSPI's dashboard defines expenditure as vendor payments against **completed *and ongoing*** works. So *Expenditure − Completed* is, by definition, spend on ongoing works — "
+    st.subheader("Note: Why we do not headline “Expenditure − Completed”")
+    st.info("**Note: Expenditure context** — MoSPI's dashboard defines expenditure as vendor payments against **completed *and ongoing*** works. So *Expenditure − Completed* is, by definition, spend on ongoing works — "
             "**not** an anomaly. In the 18th Lok Sabha that gap is "
             f"{cr(float(HEAD.loc[HEAD.cat=='18th','ongoing_spend_cr'].iloc[0]))}, but only {cr(float(HEAD.loc[HEAD.cat=='18th','paid_idle90_cr'].iloc[0]))} of it is on works that are ≥95% paid and untouched for 90+ days. "
             "That subset is what the detector flags — the part MoSPI's own website says District Authorities must keep pursuing agencies about.")
@@ -68,7 +339,7 @@ if page == "Overview":
                                 "Fully paid+idle>90d (works)": "{:,.0f}", "% sanctions > 45 days after recommendation": "{:.1f}"}), width="stretch", hide_index=True)
     st.caption("Cohorts differ in age (the 17th Lok Sabha term ended in 2024; the 18th is mid-term) — never compare completion rates across rows without that in mind. "
                "The 90/365-day and 95% thresholds are our choices, not guideline values; 98.0% of completed works are ≥95% paid, which is what the 95% line is calibrated on.")
-    st.subheader("A finding that corrects a common reading of the data")
+    st.subheader("Note: A finding that corrects a common reading of the data")
     pi = HEAD[["label", "at_physical_inspection", "pi_already_in_completed"]].copy(); pi["share"] = pi.pi_already_in_completed / pi.at_physical_inspection * 100
     st.write("The `Work Status` value **“Physical Inspection”** looks like an early-stage bottleneck (it is the most common status). It is not: the large majority of those works are already in the Completed table.")
     st.dataframe(pi.rename(columns={"label": "Cohort", "at_physical_inspection": "Works at 'Physical Inspection'", "pi_already_in_completed": "…already in Completed table", "share": "%"})
@@ -121,9 +392,9 @@ elif page == "Flagged works":
         a.metric("Sanctioned", inr(r.sanc_amt)); b.metric("Paid so far", inr(r.paid), f"{r.ratio*100:.0f}% of sanction" if pd.notna(r.ratio) else None, delta_color="off")
         c.metric("Age since sanction", f"{r.age_days/30.4:.0f} months"); e.metric("Stage / completed?", f"{r.status}", "in Completed table" if r.is_completed else "NOT in Completed table", delta_color="off")
         st.caption(f"{r.cat_label} · {r.state} · {r.district} · {r.mp_display} · sanctioned {r.sanc_date:%d-%b-%Y}" + (f" · last payment {r.last_pay:%d-%b-%Y}" if pd.notna(r.last_pay) else " · no payment recorded"))
-        if r.dq_implausible: st.warning("Data-quality note: sanctioned amount below ₹1,000 — likely a data-entry error in the source export.")
+        if r.dq_implausible: st.warning("**Note: Data-quality** — sanctioned amount below ₹1,000 — likely a data-entry error in the source export.")
         if d is None or not (r.f_paid or r.f_stall or r.f_cost or r.f_dup or r.f_stuck):
-            st.success("This work carries no flags.")
+            st.success("**Note: Status** — This work carries no flags.")
         # ---- cost
         if r.f_cost:
             st.markdown("#### :material/trending_up: Cost outlier"); st.write(d.reason_cost)
@@ -204,15 +475,15 @@ elif page == "District peers":
 # =========================================================================================
 elif page == "Vendor registry (Module 4)":
     st.title("Vendor ↔ company-registry cross-check (Module 4)")
-    st.warning("**Read this first.** Matching is by *name only* (e-SAKSHI exports carry no PAN/GSTIN). A registry status is a fact about a registered company; it is **not** proof that the MPLADS payee is that company. "
+    st.warning("**Note: Read this first.** Matching is by *name only* (e-SAKSHI exports carry no PAN/GSTIN). A registry status is a fact about a registered company; it is **not** proof that the MPLADS payee is that company. "
                "Every row is a candidate for human review, and any named company must be re-checked live on mca.gov.in before it is cited.")
     tierD = int((VEND.review_tier.str.startswith("D")).sum())
-    st.error(f"**Headline finding: name-only matching mostly fails.** We extended the registry script — unmodified — from the handoff's original scope (18th Lok Sabha + Sitting Rajya Sabha, 403 flagged names) "
+    st.error(f"**Note: Headline finding: name-only matching mostly fails.** We extended the registry script — unmodified — from the handoff's original scope (18th Lok Sabha + Sitting Rajya Sabha, 403 flagged names) "
              f"to **all four real cohorts** using the team's own `build_vendor_registry_match.py` functions, giving **{M4['matched']:,} unambiguous matches** and **{len(VEND):,} flagged (non-active status)** names. "
              f"Checking each flagged match's registered state against the state(s) the vendor was actually paid in: **{tierD:,} of {len(VEND):,} ({tierD/len(VEND)*100:.0f}%) show a state MISMATCH** — "
              "meaning the flagged company is very likely a *different, coincidentally-named* business, not the real MPLADS payee. Module 4's real, defensible output at this data quality is a short list of hand-verified "
              "case studies, not a name-matching pipeline at scale — see the two below.")
-    st.subheader("Verified case studies (hand-checked on the live MCA21 portal)")
+    st.subheader("Note: Verified case studies (hand-checked on the live MCA21 portal)")
     cA, cB = st.columns(2)
     with cA:
         st.markdown("**AK ENTERPRISES PRIVATE LIMITED** — CIN `U51101MH2013PTC248252`  \nIncorporated 16-Sep-2013 · ROC Mumbai I · **Strike Off (live-confirmed)** · no AGM or balance-sheet date ever filed  \n"
@@ -222,7 +493,7 @@ elif page == "Vendor registry (Module 4)":
     with cB:
         st.markdown("**R K CONSTRUCTION PVT LTD** — CIN `U00500BR1984PTC001953`  \nBulk registry file says **Strike Off**; live MCA21 says **Active**. → *the bulk open-data file was stale for this company.*")
         st.caption("Directors (3) each reverse-searched by DIN: only this one company each — an honest negative result. The Bihar-paid 'R K Construction' payments are state-consistent with this CIN (**Tier A**); the same name paid in other states is a *different* vendor ID in the 17th Lok Sabha export's own vendor-ID field — direct, real proof that one payee name can hide multiple real businesses.")
-    st.subheader("How reliable is name-only matching? (measured on this snapshot, all 4 cohorts)")
+    st.subheader("Note: How reliable is name-only matching? (measured on this snapshot, all 4 cohorts)")
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Vendor names matched (unambiguous)", f"{M4['matched']:,}", f"of {M4['vendors']:,} names ({M4['matched']/M4['vendors']*100:.1f}%)", delta_color="off")
     m2.metric("Flagged (non-active status)", f"{len(VEND):,}", "up from 403 in the original 2-cohort scope", delta_color="off")
@@ -266,7 +537,7 @@ elif page == "Validation & data quality":
     bc = BTC.rename(columns={"cat": "Cohort", "pnc_n": "Paid-not-closed at t0 (works)", "pnc_closure": "…closed within 12 m", "overdue_n": "Overdue at t0 (works)", "overdue_closure": "…closed within 12 m "})
     st.dataframe(bc.style.format({"Paid-not-closed at t0 (works)": "{:,.0f}", "…closed within 12 m": "{:.1%}", "Overdue at t0 (works)": "{:,.0f}", "…closed within 12 m ": "{:.1%}"}), hide_index=True, width="stretch")
     st.divider()
-    st.subheader("Data-quality observations (found by scanning the real exports)")
+    st.subheader("Note: Data-quality observations (found by scanning the real exports)")
     mm = MON.copy()
     ln = alt.Chart(mm).mark_line(point=False).encode(x=alt.X("month:T", title=None), y=alt.Y("n:Q", title="Records per month"), color=alt.Color("series:N", legend=alt.Legend(title=None)))
     st.altair_chart(ln.properties(height=260), width="stretch")
@@ -279,7 +550,7 @@ elif page == "Validation & data quality":
 - {VAL['desc_corrupt']:,} work descriptions have Hindi text destroyed to ‘?’ in the source export; {VAL['dq_implausible_lt_1000']} sanctions are under ₹1,000 (likely entry errors, e.g. ₹1.81).
 """)
     st.divider()
-    st.subheader("Methods we tested and rejected (with the numbers)")
+    st.subheader("Note: Methods we tested and rejected (with the numbers)")
     if RM:
         tf, bf, cc = RM["tfidf"], RM["benford"], RM["concentration"]
         st.markdown(f"""
@@ -291,7 +562,7 @@ elif page == "Validation & data quality":
 | Buyer–supplier concentration by district | {cc['districts_tested']:,} district×cohort cells: top-vendor share correlates **{cc['corr_top_share_vs_inverse_n_vendors']:.2f}** with 1/(number of vendors); {cc['top10_that_look_like_govt_agencies']} of the 10 most concentrated look like state agencies (e.g. MP State Agro, Nirmithi Kendra) | Confounded by government implementing agencies; needs a curated agency list → not shipped |
 """)
     else:
-        st.info("Rejected-methods measurements not found in this build.")
+        st.info("**Note: Status** — Rejected-methods measurements not found in this build.")
 
 # =========================================================================================
 else:
@@ -306,7 +577,7 @@ else:
 | 45-day sanction rule; 12-month completion norm; ₹50 lakh out-of-state cap | **REAL-SOURCED** | MoSPI Lok Sabha reply (18-Dec-2024) and dashboard text. The ₹50L cap detector is **not built** (needs an official district→state table). |
 | Anything synthetic | **None in this prototype** | CPGRAMS, photo-integrity/OCR and satellite modules are roadmap only — not built, not simulated here. |
 """)
-    st.subheader("Detectors and thresholds")
+    st.subheader("Note: Detectors and thresholds")
     T = VAL["thresholds"]; F = VAL["flags"]; RM = VAL.get("rejected_methods", {})
     st.markdown(f"""
 - **:material/payments: Paid, not closed** — not in Completed table, paid ≥ {T['paid_ratio']*100:.0f}% of sanction, last payment > {T['idle_days_paid']} days ago. **{F['PAID_NOT_CLOSED']:,}** works. *Calibration:* {VAL['completed_share_paid_ge_threshold']*100:.1f}% of completed works are ≥95% paid; the median completed work is paid exactly 100% of sanction; e-SAKSHI enforces payment ≤ sanction ({VAL['overpaid_works']} exception in {VAL['works']:,}), so there is no overpayment or cost-overrun signal to detect. Backtested (see Validation).
@@ -315,7 +586,7 @@ else:
 - **:material/content_copy: Possible duplicate** — identical, specific description (≥ {T['dup_min_tokens']} words), same MP + district + activity, amounts within {T['dup_amt_rel']*100:.0f}%, group of 2–{T['dup_max_group']}. **{F['POSSIBLE_DUPLICATE']:,}** works; bulk templates suppressed ({VAL['dup_bulk_suppressed_works']:,} works in larger groups; {VAL['dup_generic_suppressed_works']:,} with nationally common wording). Phased funding is a legitimate explanation. Not backtestable.
 - **:material/lock: Stuck payment** — a payment row still ‘Payment In-Progress’ after > {T['stuck_days']} days. **{F['STUCK_PAYMENT']:,}** works. Meaning of the status is unverified.
 """)
-    st.subheader("Known limits (stated up front)")
+    st.subheader("Note: Known limits (stated up front)")
     st.markdown(f"""
 - Thresholds marked *mine* in the pipeline (90/180/365 days, 95%, fence multipliers) are analytic choices, not guideline values. No guideline timeline for ‘mark complete after final payment’ was found.
 - **What “Physical Inspection” means in e-SAKSHI is an inference**: the data show it is mostly a post-completion stage; the portal's own definition has not been confirmed.
@@ -323,5 +594,5 @@ else:
 - {VAL['desc_corrupt']:,} descriptions have Hindi text lost to ‘?’ and are excluded from the duplicate detector; see *Validation & data quality* for data anomalies (including an 8-week gap in recorded completions, cause unverified).
 - Deployable as a read-only layer beside e-SAKSHI (designed for MoSPI/NIC Meghraj); this prototype reads public exports, not the transactional system.
 """)
-    st.subheader("Roadmap (not built)")
+    st.subheader("Note: Roadmap (not built)")
     st.markdown("Citizen-grievance correlation (CPGRAMS, needs a MoSPI–DARPG data-sharing agreement) · photo perceptual-hash / certificate OCR · high-resolution satellite verification · multi-year vendor/director graph (needs vendor IDs beyond the 17th Lok Sabha export and scaled MCA21 lookups).")
