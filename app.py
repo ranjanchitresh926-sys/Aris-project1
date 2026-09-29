@@ -339,26 +339,36 @@ div[data-testid="stMarkdown"] tr:hover td {
 }
 
 /* ── Radio button (TOOFAN style) ── */
-/* Aggressively Hide Native Radio Circles across all Streamlit versions */
+/* 1. AGGRESSIVELY NUKE RADIO CIRCLES (Works on 1.20 - 1.39) */
 div[data-testid="stRadio"] input[type="radio"],
+div[data-testid="stRadio"] svg,
 div[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child,
 div[data-testid="stRadio"] div[role="radio"],
-div[data-testid="stRadio"] svg {
+div[data-testid="stRadio"] label::before,
+div[data-testid="stRadio"] label::after,
+div[data-testid="stRadio"] span[data-baseweb="radio"] > div:first-child,
+div[data-testid="stRadio"] label > div:first-child:not(:last-child),
+div[data-testid="stRadio"] label > span:first-child:not(:last-child) {
     display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
 }
 
-/* Radio Group Container (Matches multiple Streamlit version DOMs) */
+/* 2. FORCE SINGLE LINE (NO WRAPPING) */
 div[data-testid="stRadio"] > div[role="radiogroup"],
 div[data-testid="stRadio"] > div:last-child {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important; /* STRICTLY PREVENT WRAPPING */
     justify-content: center !important;
-    gap: 2rem !important;
+    gap: 0.8rem !important; /* REDUCED GAP TO ENSURE FIT */
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     align-items: center !important;
+    overflow-x: visible !important; /* Allow spill if screen is tiny */
 }
 
 /* Tab Items (Inactive) */
@@ -367,8 +377,8 @@ div[data-testid="stRadio"] label {
     padding: 4px 0px !important;
     margin: 0 !important;
     color: #4A4A4A !important;
-    font-size: 0.85rem !important;
-    white-space: nowrap !important;
+    font-size: 0.75rem !important; /* REDUCED FONT SIZE TO ENSURE FIT */
+    white-space: nowrap !important; /* PREVENT TEXT WRAP INSIDE TAB */
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -383,7 +393,7 @@ div[data-testid="stRadio"] label:hover {
     color: #000000 !important;
 }
 
-/* Active/Selected state (Works on all browsers and older Streamlit) */
+/* Active/Selected state */
 div[data-testid="stRadio"] label[data-checked="true"],
 div[data-testid="stRadio"] label[aria-checked="true"],
 div[data-testid="stRadio"] label:has(input[type="radio"]:checked) {
